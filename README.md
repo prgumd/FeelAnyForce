@@ -14,18 +14,21 @@
 
 <div align="center">
   <a href="https://prg.cs.umd.edu/FeelAnyForce"><b>Website</b></a> |
-  <a href=""><b>Paper</b></a> |
-  <a href=""><b>Video</b></a>
+  <a href="https://arxiv.org/abs/2410.02048"><b>Arxiv</b></a> |
+  <a href="https://www.youtube.com/watch?v=IfQCkUj2xbU"><b>Video</b></a>
 </div>
 
 ## Table of Contents
 
-- [Update](#new-updates)
+- [Update](#update)
 - [Installation](#gear-installation)
-- [Citing this paper](#-citing-this-paper)
+- [Calibration](#gear-calibration)
+- [Citing this paper](#citing-this-paper)
 
 ## Update
 - Awaiting the review process to make the code available
 ## :gear: Installation
+
+## :gear: Calibration
 
 ## Citing this paper
