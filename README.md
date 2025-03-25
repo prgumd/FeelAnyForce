@@ -18,7 +18,7 @@
 
 - [Update](#update)
 - [Installation](#gear-installation)
-- [Real-Time prediction on GelSight Mini](#arrow_forward-Real-Time-prediction-on-GelSight-Mini)
+- [Real-Time prediction on GelSight Mini](#-Real-Time-prediction-on-GelSight-Mini)
 - [Calibration](#-Calibration)
 - [Citing this paper](#citing-this-paper)
 
@@ -62,7 +62,7 @@ To train the network,
 python training_multi_head.py --epochs 100 --labels_train ./dataset/TacForce_train_set.csv.csv --labels_val ./dataset/TacForce_val_set.csv --ckpt_dir $ckpt_dir --data_basedir ./dataset/ --training_name TacForce_v1 
 ``` 
 
-## :arrow_forward: Real-Time prediction on GelSight Mini 
+## 🎬 Real-Time prediction on GelSight Mini 
 
 ```bash
 wget -P ckpt/ https://huggingface.co/amirsh1376/FeelAnyForce/resolve/main/checkpoint_v1.pth.tar   # download the checkpoint
