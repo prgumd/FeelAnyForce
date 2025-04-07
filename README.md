@@ -59,7 +59,7 @@ bash dataset_downloader.sh
 ### :four: Training from scratch
 To train the network,
 ```bash
-python training_multi_head.py --epochs 100 --labels_train ./dataset/TacForce_train_set.csv.csv --labels_val ./dataset/TacForce_val_set.csv --ckpt_dir $ckpt_dir --data_basedir ./dataset/ --training_name TacForce_v1 
+python training_multi_head.py --epochs 100 --labels_train ./dataset/TacForce_train_set.csv --labels_val ./dataset/TacForce_val_set.csv --ckpt_dir $ckpt_dir --data_basedir ./dataset/ --training_name TacForce_v1 
 ``` 
 
 ## 🎬 Real-Time prediction on GelSight Mini 
