@@ -78,6 +78,8 @@ def main(record_count, interval):
 
     ft_r = ATISensor.Receiver()
     ft_r.tare()
+    while True:
+        print(ft_r.get_ft())
 
     dev, nn = init_mini()
     for _ in range(10): get_tacdepth(dev, nn)

@@ -1,14 +1,19 @@
+import argparse
+
 import torch
 from torch import nn
-from regressor import Regressor
-from depth_decoder import Decoder
+
+from feelanyforce.regressor import Regressor
+from feelanyforce.depth_decoder import Decoder
+from feelanyforce.pretrained import download_pretrained_weights
 
 
 class ComposedModel(nn.Module):
     """
     Neural network model composed of a tactile backbone, a regressor, and a decoder.
     """
-    def __init__(self, args):
+
+    def __init__(self, args=None, pretrained=False):
         """
         Initializes the ComposedModel with the specified arguments.
 
@@ -17,20 +22,33 @@ class ComposedModel(nn.Module):
                   number of blocks to use, label count, and training options.
         """
         super(ComposedModel, self).__init__()
-
+        if args is None:
+            from feelanyforce.args import get_parser
+            parser = get_parser()
+            args = parser.parse_args([])
+            args.pretrained = pretrained
         self.args = args
 
         self.tactile_backbone = torch.hub.load(args.tactile_repo, args.tactile_model)
         tactile_embed_dim = self.tactile_backbone.embed_dim * (args.n_last_blocks + int(args.avgpool_patchtokens))
-            
+
         self.regressor = Regressor(tactile_embed_dim, num_labels=self.args.num_labels)
-            
+
         self.decoder = Decoder(224, 224, tactile_embed_dim)
 
-        self.regressor.cuda()
-        self.tactile_backbone.cuda()
-        self.decoder.cuda()
+        if args.pretrained:
+            weights_path = download_pretrained_weights()
+            checkpoint = torch.load(weights_path, map_location="cpu")
+            config = argparse.Namespace(**checkpoint["config"])
+            self.args = parser.parse_args(args=[], namespace=config)
+            self.load_state_dict(checkpoint["state_dict"], strict=True)
+            print(f"loaded feelanyforce weights from huggingface!")
+            self.device = "cpu"
 
+        if self.args.device == "cuda":
+            self.regressor.cuda()
+            self.tactile_backbone.cuda()
+            self.decoder.cuda()
 
     def get_param_groups(self, lr_backbone, lr_architecture, lr_calibration):
         """
@@ -47,7 +65,7 @@ class ComposedModel(nn.Module):
         """
         param_groups = []
 
-        if self.args.tactile_backbone_training =='calibration':
+        if self.args.tactile_backbone_training == 'calibration':
             selected_params = []
             num_linear_layers = 0
 
@@ -56,27 +74,26 @@ class ComposedModel(nn.Module):
                 if isinstance(layer, nn.Linear):
                     num_linear_layers += 1
                 if num_linear_layers > self.args.layers_calibration:
-                    break  
+                    break
 
-                # Collect trainable parameters (skip GELU but include LayerNorm)
+                    # Collect trainable parameters (skip GELU but include LayerNorm)
                 if isinstance(layer, (nn.Linear, nn.LayerNorm)):
                     for param in layer.parameters():
                         selected_params.append(param)
 
             param_groups.append({'params': selected_params, 'lr': lr_calibration})
-                
+
         else:
             for _, v in self.tactile_backbone.named_parameters():
                 param_groups += [{'params': v, 'lr': lr_backbone}]
 
             for _, v in self.regressor.named_parameters():
                 param_groups += [{'params': v, 'lr': lr_architecture}]
-            
+
             for _, v in self.decoder.named_parameters():
                 param_groups += [{'params': v, 'lr': lr_architecture}]
 
         return param_groups
-
 
     def get_encoding(self, model_input):
         """
@@ -97,7 +114,14 @@ class ComposedModel(nn.Module):
             output = torch.cat([x[:, 0] for x in intermediate_output], dim=-1)
 
             if self.args.avgpool_patchtokens:
-                output = torch.cat((output.unsqueeze(-1), torch.mean(intermediate_output[-1][:, 1:], dim=1).unsqueeze(-1)), dim=-1)
+                output = torch.cat(
+                    (output.unsqueeze(-1), torch.mean(intermediate_output[-1][:, 1:], dim=1).unsqueeze(-1)), dim=-1)
                 output = output.reshape(output.shape[0], -1)
 
         return output
+
+    def forward(self, x):
+        return self.get_encoding(x)
+
+    def predict_force(self, x):
+        return self.regressor(self.get_encoding(x))

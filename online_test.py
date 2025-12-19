@@ -13,25 +13,28 @@ from PIL import Image
 import numpy as np
 import json
 
-from args import get_parser
-from composed_model import ComposedModel
+from feelanyforce.args import get_parser
+from feelanyforce.composed_model import ComposedModel
+
+import os
 
 class Predictor:
     def __init__(self):
         parser = get_parser()
         self.args = parser.parse_args()
-        ckpt = torch.load(self.args.checkpoint)
-        if "config" in ckpt.keys():
-            config = argparse.Namespace(**ckpt["config"])
-            self.args = parser.parse_args(namespace=config)
-
-        # Load the model
-        self.model = ComposedModel(self.args)
+        if os.path.isfile(self.args.checkpoint):
+            ckpt = torch.load(self.args.checkpoint)
+            if "config" in ckpt.keys():
+                config = argparse.Namespace(**ckpt["config"])
+                self.args = parser.parse_args(namespace=config)
+            self.model = ComposedModel(self.args)
+            self.model.load_state_dict(ckpt["state_dict"])
+        else:
+            self.args.pretrained = True
+            self.model = ComposedModel(self.args)
 
         self.model.cuda()
         self.model.eval()
-        self.model.load_state_dict(ckpt["state_dict"])
-
 
         with open(self.args.dataset_stats) as convert_file:
             dataset_mean_std = json.load(convert_file)

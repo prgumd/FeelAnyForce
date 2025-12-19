@@ -5,13 +5,13 @@ import numpy as np
 import os
 import torch
 import torch.backends.cudnn as cudnn
-import utils
+import feelanyforce.utils
 import wandb
 from datetime import datetime
 from pathlib import Path
 
-from args import get_parser
-from composed_model import ComposedModel
+from feelanyforce.args import get_parser
+from feelanyforce.composed_model import ComposedModel
 from dataset import TacForceDataset
 from torch import nn
 from torchvision import transforms as pth_transforms

@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from torchvision import transforms as pth_transforms
 from pathlib import Path
-import utils
+import feelanyforce.utils
 
 
 class TacForceDataset(Dataset):

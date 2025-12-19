@@ -1,5 +1,5 @@
 import argparse
-import utils
+import feelanyforce.utils as utils
 import os
 dir_name = os.path.abspath(os.path.dirname(__file__))
 def get_parser():
@@ -52,5 +52,6 @@ def get_parser():
     parser.add_argument('--val_freq', default=1, type=int, help="validation epoch freq.")
     parser.add_argument('--weight_decay', default=0.0, type=float, help='L2 regularization')
     parser.add_argument('--wandb', default=False, type=utils.bool_flag, help="""Whether to use wandb or not.""")
+    parser.add_argument('--device', default="cpu", type=str, help="""the device to load the model on""")
 
     return parser
