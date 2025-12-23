@@ -6,6 +6,7 @@ from torch import nn
 from feelanyforce.regressor import Regressor
 from feelanyforce.depth_decoder import Decoder
 from feelanyforce.pretrained import download_pretrained_weights
+from feelanyforce.args import get_parser
 
 
 class ComposedModel(nn.Module):
@@ -22,9 +23,8 @@ class ComposedModel(nn.Module):
                   number of blocks to use, label count, and training options.
         """
         super(ComposedModel, self).__init__()
+        parser = get_parser()
         if args is None:
-            from feelanyforce.args import get_parser
-            parser = get_parser()
             args = parser.parse_args([])
             args.pretrained = pretrained
         self.args = args
